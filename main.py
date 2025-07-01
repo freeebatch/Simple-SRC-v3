@@ -119,42 +119,35 @@ async def H(C, m: M):
         return
     S = Z[U].get("step")
     if S == "start":
-        L = m.text
-        I, D, link_type = E(L)
-        if not I or not D:
-            await m.reply_text("Invalid link. Please check the format.")
-            del Z[U]
-            return
-        Z[U].update({"step": "count", "cid": I, "sid": D, "lt": link_type})
-        await m.reply_text("How many messages?")
-    
-    elif S == "count":
-        if not m.text.isdigit():
-            await m.reply_text("Enter a valid number.")
-            return
-        Z[U].update({"step": "dest", "num": int(m.text)})
-        await m.reply_text("Send destination chat ID.")
-    
-    elif S == "dest":
-        D = m.text
-        Z[U].update({"step": "process", "did": D})
-        
-        I, S, N, link_type = Z[U]["cid"], Z[U]["sid"], Z[U]["num"], Z[U]["lt"]
-        R = 0
-        pt = await m.reply_text("Trying hard 🐥...")
-        
-        for i in range(N):
-            M = S + i
-            msg = await J(C, Y, I, M, link_type)
-            if msg:
-                res = await V(C, Y, msg, D, link_type, U)
-                await pt.edit(f"{i+1}/{N}: {res}")
-                if "Done" in res: R += 1
-            else:
-                await m.reply_text(f"{M} not found.")
-        
-        await m.reply_text(f"Batch Completed ✅")
+    L = m.text
+    I, D, link_type = E(L)
+    if not I or not D:
+        await m.reply_text("Invalid link. Please check the format.")
         del Z[U]
+        return
+
+    # Set fixed values and start processing directly
+    chat_id = I
+    start_id = D
+    count = 20
+    dest_id = "-1002370656932"
+
+    pt = await m.reply_text("Trying hard 🐥...")
+
+    R = 0
+    for i in range(count):
+        msg_id = start_id + i
+        msg = await J(C, Y, chat_id, msg_id, link_type)
+        if msg:
+            res = await V(C, Y, msg, dest_id, link_type, U)
+            await pt.edit(f"{i+1}/{count}: {res}")
+            if "Done" in res:
+                R += 1
+        else:
+            await m.reply_text(f"{msg_id} not found.")
+
+    await m.reply_text(f"Batch Completed ✅ ({R}/{count} succeeded)")
+    del Z[U]
 
 print("Bot started successfully!!")
 X.run()
