@@ -1,3 +1,4 @@
+import asyncio
 import os as O, re as R
 from pyrogram import Client as C, filters as F
 from pyrogram.types import Message as M
@@ -26,6 +27,17 @@ def E(L):
     else:
         return None, None, None
         
+
+async def safe_get_message(client, userbot, chat_id, msg_id, link_type, retries=2):
+    import asyncio
+    for _ in range(retries):
+        msg = await J(client, userbot, chat_id, msg_id, link_type)
+        if msg:
+            return msg
+        await asyncio.sleep(1)
+    return None
+
+
 async def J(C, U, I, D, link_type):
     try:
         print(f"Fetching message from {I}, Message ID: {D}, Type: {link_type}")
@@ -143,9 +155,10 @@ async def H(C, m: M):
         R = 0
         pt = await m.reply_text("Trying hard 🐥...")
         
+        missing = 0
         for i in range(N):
             M = S + i
-            msg = await J(C, Y, I, M, link_type)
+            msg = await safe_get_message(C, Y, I, M, link_type)
             if msg:
                 res = await V(C, Y, msg, D, link_type, U)
                 new_text = f"{i+1}/{N}: {res}"
@@ -155,10 +168,13 @@ async def H(C, m: M):
                     R += 1
                 elif isinstance(res, str) and "PEER_ID_INVALID" in res:
                     await m.reply_text("❌ Destination chat is invalid or not accessible. Make sure the userbot is a member of the group.")
+                await asyncio.sleep(1)
             else:
                 await m.reply_text(f"{M} not found.")
+        await asyncio.sleep(1)
         
-        await m.reply_text(f"Batch Completed ✅")
+        await m.reply_text(f"Batch Completed ✅
+Missing messages: {missing}")
         del Z[U]
 
 print("Bot started successfully!!")
