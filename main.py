@@ -148,8 +148,13 @@ async def H(C, m: M):
             msg = await J(C, Y, I, M, link_type)
             if msg:
                 res = await V(C, Y, msg, D, link_type, U)
-                await pt.edit(f"{i+1}/{N}: {res}")
-                if "Done" in res: R += 1
+                new_text = f"{i+1}/{N}: {res}"
+                if pt.text != new_text:
+                    await pt.edit(new_text)
+                if isinstance(res, str) and "Done" in res:
+                    R += 1
+                elif isinstance(res, str) and "PEER_ID_INVALID" in res:
+                    await m.reply_text("❌ Destination chat is invalid or not accessible. Make sure the userbot is a member of the group.")
             else:
                 await m.reply_text(f"{M} not found.")
         
