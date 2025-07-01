@@ -119,7 +119,7 @@ async def H(C, m: M):
         return
     S = Z[U].get("step")
     if S == "start":
-    L = m.text
+        L = m.text
     I, D, link_type = E(L)
     if not I or not D:
         await m.reply_text("Invalid link. Please check the format.")
